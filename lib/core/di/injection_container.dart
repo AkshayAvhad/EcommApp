@@ -1,6 +1,8 @@
+import 'package:ecomm/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:ecomm/features/products/data/datasources/product_remote_data_source.dart';
 import 'package:ecomm/features/products/data/repositories/product_repository_impl.dart';
 import 'package:ecomm/features/products/domain/repositories/product_repository.dart';
+import 'package:ecomm/features/products/presentation/bloc/category_bloc.dart';
 import 'package:ecomm/features/products/presentation/bloc/product_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:get_it/get_it.dart';
@@ -25,4 +27,8 @@ Future<void> init() async {
 
   // Bloc
   sl.registerFactory(() => ProductBloc(repository: sl()));
+
+  sl.registerLazySingleton(() => CartBloc());
+
+  sl.registerFactory(() => CategoryBloc(repository: sl()));
 }

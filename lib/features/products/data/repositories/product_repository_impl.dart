@@ -9,8 +9,8 @@ class ProductRepositoryImpl implements ProductRepository {
   ProductRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<List<Product>> getProducts() async {
-    final models = await remoteDataSource.getProducts();
+  Future<List<Product>> getProducts({int limit = 20, int skip = 20}) async {
+    final models = await remoteDataSource.getProducts(limit: limit, skip: skip);
     return models.map((model) => model.toEntity()).toList();
   }
 
@@ -19,6 +19,39 @@ class ProductRepositoryImpl implements ProductRepository {
     try {
       final model = await remoteDataSource.getProductById(id);
       return model.toEntity();
+    } catch (exception) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<Product>> searchProducts(String query) async {
+    final models = await remoteDataSource.searchProducts(query);
+    return models.map((model) => model.toEntity()).toList();
+  }
+
+  @override
+  Future<List<String>> getCategories() async {
+    try {
+      return await remoteDataSource.getCategories();
+    } catch (exception) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<Product>> getProductsByCategory(
+    String category, {
+    int limit = 20,
+    skip = 0,
+  }) async {
+    try {
+      final models = await remoteDataSource.getProductByCategory(
+        category,
+        limit: limit,
+        skip: skip,
+      );
+      return models.map((model) => model.toEntity()).toList();
     } catch (exception) {
       rethrow;
     }

@@ -1,3 +1,5 @@
+import 'package:ecomm/core/network/network_info.dart';
+import 'package:ecomm/features/products/data/datasources/product_local_data_source.dart';
 import 'package:ecomm/features/products/data/datasources/product_remote_data_source.dart';
 import 'package:ecomm/features/products/domain/repositories/product_repository.dart';
 
@@ -5,13 +7,39 @@ import '../../domain/entities/product.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
   final ProductRemoteDataSource remoteDataSource;
+  final ProductLocalDataSource localDataSource;
+  final NetworkInfo networkInfo;
 
-  ProductRepositoryImpl({required this.remoteDataSource});
+  ProductRepositoryImpl({
+    required this.remoteDataSource,
+    required this.localDataSource,
+    required this.networkInfo,
+  });
 
   @override
   Future<List<Product>> getProducts({int limit = 20, int skip = 20}) async {
-    final models = await remoteDataSource.getProducts(limit: limit, skip: skip);
-    return models.map((model) => model.toEntity()).toList();
+    // Check if we have internet (using a connectivity package)
+    if (await networkInfo.isConnected) {
+      try {
+        final remoteProducts = await remoteDataSource.getProducts(
+          limit: limit,
+          skip: skip,
+        );
+
+        await localDataSource.cacheProducts(remoteProducts);
+        print('CALLING PRODUCTS API');
+        return remoteProducts.map((model) => model.toEntity()).toList();
+      } catch (exception) {
+        return _fetchFromLocal(); // Fallback if API is down
+      }
+    } else {
+      return _fetchFromLocal(); // Offline Mode
+    }
+  }
+
+  Future<List<Product>> _fetchFromLocal() async {
+    final localData = await localDataSource.getLastProducts();
+    return localData.map((model) => model.toEntity()).toList();
   }
 
   @override

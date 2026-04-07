@@ -1,7 +1,5 @@
-import 'dart:convert';
-
+import 'package:dio/dio.dart';
 import 'package:ecomm/features/products/data/models/product_model.dart';
-import 'package:http/http.dart' as http;
 
 abstract class ProductRemoteDataSource {
   Future<List<ProductModel>> getProducts({int limit = 20, int skip = 0});
@@ -24,22 +22,26 @@ abstract class ProductRemoteDataSource {
 }
 
 class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
-  final http.Client client;
+  final Dio dio;
 
-  ProductRemoteDataSourceImpl({required this.client});
+  ProductRemoteDataSourceImpl({required this.dio});
 
   @override
   Future<List<ProductModel>> getProducts({int limit = 20, int skip = 0}) async {
-    final response = await client.get(
-      Uri.parse('https://dummyjson.com/products?limit=$limit&skip=$skip'),
+    final response = await dio.get(
+      '/products',
+      queryParameters: {'limit': limit, 'skip': skip},
     );
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic> decoded = json.decode(response.body);
-      final List<dynamic> list = decoded['products'];
+      final List<dynamic> list = response.data['products'];
       return list.map((item) => ProductModel.fromJson(item)).toList();
     } else {
-      throw Exception('Failed to load products');
+      throw Exception(
+        response.data.toString().contains('message')
+            ? response.data['message']
+            : 'Failed to load products!',
+      );
     }
   }
 
@@ -55,15 +57,13 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     int limit = 20,
     int skip = 0,
   }) async {
-    final response = await client.get(
-      Uri.parse(
-        'https://dummyjson.com/products/search?q=$query?limit=$limit&skip=$skip',
-      ),
+    final response = await dio.get(
+      '/products/search',
+      queryParameters: {'q': query, 'limit': limit, 'skip': skip},
     );
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic> decoded = json.decode(response.body);
-      final List<dynamic> list = decoded['products'];
+      final List<dynamic> list = response.data['products'];
       return list.map((item) => ProductModel.fromJson(item)).toList();
     } else {
       throw Exception('Search failed');
@@ -72,12 +72,10 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
 
   @override
   Future<List<String>> getCategories() async {
-    final response = await client.get(
-      Uri.parse('https://dummyjson.com/products/categories'),
-    );
+    final response = await dio.get('/products/categories');
 
     if (response.statusCode == 200) {
-      final List<dynamic> list = json.decode(response.body);
+      final List<dynamic> list = response.data;
       return list.map((item) => item['name'].toString()).toList();
     } else {
       throw Exception('Failed to load categories');
@@ -90,15 +88,13 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     int limit = 20,
     int skip = 0,
   }) async {
-    final response = await client.get(
-      Uri.parse(
-        'https://dummyjson.com/products/category/$category?limit=$limit&skip=$skip',
-      ),
+    final response = await dio.get(
+      '/products/category/$category',
+      queryParameters: {'limit': limit, 'skip': skip},
     );
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic> decoded = json.decode(response.body);
-      final List<dynamic> list = decoded['products'];
+      final List<dynamic> list = response.data['products'];
       return list.map((item) => ProductModel.fromJson(item)).toList();
     } else {
       throw Exception('Failed to load products for category: $category');

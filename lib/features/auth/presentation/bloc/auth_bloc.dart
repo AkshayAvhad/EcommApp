@@ -1,5 +1,9 @@
+import 'dart:async';
+
+import 'package:ecomm/core/util/logout_event_helper.dart';
 import 'package:ecomm/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:ecomm/features/auth/domain/entities/user.dart';
+import 'package:ecomm/features/auth/domain/usecases/get_user_profile.dart';
 import 'package:ecomm/features/auth/domain/usecases/login_user.dart';
 import 'package:ecomm/features/auth/domain/usecases/logout_user.dart';
 import 'package:ecomm/features/auth/presentation/bloc/auth_event.dart';
@@ -10,15 +14,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUser loginUser;
   final LogoutUser logoutUser;
   final AuthLocalDataSource localDataSource;
+  final GetUserProfile getUserProfile;
+  StreamSubscription? _logoutSubscription;
 
   AuthBloc({
     required this.loginUser,
     required this.logoutUser,
     required this.localDataSource,
+    required this.getUserProfile,
   }) : super(AuthInitial()) {
+    _logoutSubscription = LogoutEventHelper.logoutStream.listen((_) {
+      add(LoggedOut());
+    });
+
     on<AppStarted>(_onAppStarted);
     on<LoginRequested>(_onLoginRequested);
-    on<LoggedOut>(_onLoggedOut);
+    // on<LoggedOut>(_onLoggedOut);
+    on<GetProfileRequested>(_onGetProfileRequested);
   }
 
   void _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
@@ -41,9 +53,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  void _onLoggedOut(LoggedOut event, Emitter<AuthState> emit) async {
-    await logoutUser.execute();
-    emit(Unauthenticated());
+  // void _onLoggedOut(LoggedOut event, Emitter<AuthState> emit) async {
+  //   // await logoutUser.execute();
+  //   emit(Unauthenticated());
+  // }
+
+  void _onGetProfileRequested(
+    GetProfileRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    final result = await getUserProfile.execute();
+    result.fold(
+      (failure) => emit(AuthError(message: failure.message)),
+      (user) => emit(Authenticated(user: user)),
+    );
   }
 
   User _dummyUser(String token) => User(
@@ -56,4 +80,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     image: '',
     token: '',
   );
+
+  @override
+  Future<void> close() {
+    _logoutSubscription?.cancel();
+    return super.close();
+  }
 }

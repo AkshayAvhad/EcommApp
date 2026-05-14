@@ -10,4 +10,6 @@ abstract class AuthRepository {
 
   Future<Either<Failure, bool>> isCheckLoggedIn();
 
+  Future<Either<Failure, User>> getUserProfile();
+
 }

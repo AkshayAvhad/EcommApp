@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:ecomm/core/util/logout_event_helper.dart';
 import 'package:ecomm/features/auth/data/datasources/auth_local_data_source.dart';
 
 class AuthInterceptor extends Interceptor {
@@ -24,11 +25,15 @@ class AuthInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
     // 4. If we get a 401 (Unauthorized), we should trigger a logout!
     if (err.response?.statusCode == 401) {
       // We will handle the "Auto-Logout" logic here later via the Auth BLoC
+      await authLocalDataSource.deleteToken();
+
+      LogoutEventHelper.triggerLogout();
     }
+    // super.onError(err, handler);
     return handler.next(err);
   }
 }

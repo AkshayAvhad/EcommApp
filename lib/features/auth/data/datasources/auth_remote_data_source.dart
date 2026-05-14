@@ -4,6 +4,8 @@ import 'package:ecomm/features/auth/data/models/user_model.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> login(String username, String password);
+
+  Future<UserModel> getUserProfile();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -29,6 +31,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw ServerFailure('Invalid username or password');
       }
       throw ServerFailure();
+    }
+  }
+
+  @override
+  Future<UserModel> getUserProfile() async {
+    try {
+      final response = await dio.get('/auth/me');
+
+      if (response.statusCode == 200) {
+        return UserModel.fromJson(response.data);
+      } else {
+        throw ServerFailure();
+      }
+    } on DioException catch (e) {
+      throw ServerFailure(e.response?.data['message']);
     }
   }
 }

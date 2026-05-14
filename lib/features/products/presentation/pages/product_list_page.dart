@@ -139,7 +139,7 @@ class _ProductViewState extends State<ProductView> {
               ProductLoading() => const Center(
                 child: CircularProgressIndicator(),
               ),
-              ProductLoaded() => BlocListener<CartBloc, CartState>(
+              ProductLoaded() => BlocListener<CategoryBloc, CategoryState>(
                 listener: (context, state) {
                   if (state is CategoryLoaded) {
                     _scrollController.animateTo(

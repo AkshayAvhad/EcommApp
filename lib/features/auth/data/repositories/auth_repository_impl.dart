@@ -49,4 +49,18 @@ class AuthRepositoryImpl implements AuthRepository {
       return const Left(CacheFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, User>> getUserProfile() async {
+    if (await networkInfo.isConnected) {
+      try {
+        final userModel = await remoteDataSource.getUserProfile();
+        return Right(userModel.toEntity());
+      } catch (e) {
+        return const Left(ServerFailure('Could not fetch profile'));
+      }
+    } else {
+      return const Left(NetworkFailure());
+    }
+  }
 }

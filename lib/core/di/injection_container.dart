@@ -6,6 +6,7 @@ import 'package:ecomm/features/auth/data/datasources/auth_local_data_source.dart
 import 'package:ecomm/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:ecomm/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:ecomm/features/auth/domain/repositories/auth_repository.dart';
+import 'package:ecomm/features/auth/domain/usecases/get_user_profile.dart';
 import 'package:ecomm/features/auth/domain/usecases/login_user.dart';
 import 'package:ecomm/features/auth/domain/usecases/logout_user.dart';
 import 'package:ecomm/features/auth/presentation/bloc/auth_bloc.dart';
@@ -30,9 +31,17 @@ Future<void> init() async {
   //Core
   sl.registerLazySingleton(() => AuthInterceptor(authLocalDataSource: sl()));
 
+  // Use Case
+  sl.registerLazySingleton(() => GetUserProfile(sl()));
+
   //Bloc
   sl.registerFactory(
-    () => AuthBloc(loginUser: sl(), logoutUser: sl(), localDataSource: sl()),
+    () => AuthBloc(
+      loginUser: sl(),
+      logoutUser: sl(),
+      localDataSource: sl(),
+      getUserProfile: sl(),
+    ),
   );
 
   //Use Cases (LazySingleton: only one instance needed for the logic)

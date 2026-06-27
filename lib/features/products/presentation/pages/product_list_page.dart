@@ -1,3 +1,5 @@
+import 'package:ecomm/features/auth/presentation/bloc/profile/profile_bloc.dart';
+import 'package:ecomm/features/auth/presentation/pages/profile_page.dart';
 import 'package:ecomm/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:ecomm/features/cart/presentation/bloc/cart_state.dart';
 import 'package:ecomm/features/cart/presentation/pages/cart_page.dart';
@@ -76,6 +78,19 @@ class ProductListScaffold extends StatelessWidget {
                 ],
               );
             },
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => BlocProvider(
+                    create: (_) => sl<ProfileBloc>(),
+                    child: const ProfilePage(),
+                  ),
+                ),
+              );
+            },
+            icon: const Icon(Icons.account_circle_rounded),
           ),
         ],
         bottom: PreferredSize(

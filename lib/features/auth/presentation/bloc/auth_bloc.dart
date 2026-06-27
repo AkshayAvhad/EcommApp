@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:ecomm/core/database/app_database.dart';
 import 'package:ecomm/core/util/logout_event_helper.dart';
 import 'package:ecomm/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:ecomm/features/auth/domain/entities/user.dart';
-import 'package:ecomm/features/auth/domain/usecases/get_user_profile.dart';
 import 'package:ecomm/features/auth/domain/usecases/login_user.dart';
 import 'package:ecomm/features/auth/domain/usecases/logout_user.dart';
 import 'package:ecomm/features/auth/presentation/bloc/auth_event.dart';
@@ -14,14 +14,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUser loginUser;
   final LogoutUser logoutUser;
   final AuthLocalDataSource localDataSource;
-  final GetUserProfile getUserProfile;
+  final AppDatabase database;
+
   StreamSubscription? _logoutSubscription;
 
   AuthBloc({
     required this.loginUser,
     required this.logoutUser,
     required this.localDataSource,
-    required this.getUserProfile,
+    required this.database,
   }) : super(AuthInitial()) {
     _logoutSubscription = LogoutEventHelper.logoutStream.listen((_) {
       add(LoggedOut());
@@ -29,8 +30,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<AppStarted>(_onAppStarted);
     on<LoginRequested>(_onLoginRequested);
-    // on<LoggedOut>(_onLoggedOut);
-    on<GetProfileRequested>(_onGetProfileRequested);
+    on<LoggedOut>(_onLoggedOut);
   }
 
   void _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
@@ -53,21 +53,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  // void _onLoggedOut(LoggedOut event, Emitter<AuthState> emit) async {
-  //   // await logoutUser.execute();
-  //   emit(Unauthenticated());
-  // }
-
-  void _onGetProfileRequested(
-    GetProfileRequested event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(AuthLoading());
-    final result = await getUserProfile.execute();
-    result.fold(
-      (failure) => emit(AuthError(message: failure.message)),
-      (user) => emit(Authenticated(user: user)),
-    );
+  void _onLoggedOut(LoggedOut event, Emitter<AuthState> emit) async {
+    await logoutUser.execute();
+    try {
+      await database.clearAllData();
+    } catch (exception) {
+      print("Database clear failed quietly: $exception");
+    }
+    emit(Unauthenticated());
   }
 
   User _dummyUser(String token) => User(

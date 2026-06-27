@@ -1,3 +1,4 @@
+import 'dart:developer' as dev show log;
 import 'package:ecomm/core/database/app_database.dart';
 import 'package:ecomm/features/products/data/models/product_model.dart';
 
@@ -30,16 +31,16 @@ class ProductLocalDataSourceImpl implements ProductLocalDataSource {
           )
           .toList();
       await database.insertProducts(itemsToCache);
-      print('DRIFT: Cache Success!');
+      dev.log('DRIFT: Cache Success!');
     } catch (exception) {
-      print('DRIFT: Cache Failed!');
+      dev.log('DRIFT: Cache Failed!: $exception');
     }
   }
 
   @override
   Future<List<ProductModel>> getLastProducts() async {
     final List<ProductLocal> results = await database.getAllProducts();
-    print('DRIFT: Retrieved ${results.length} items from Local DB');
+    dev.log('DRIFT: Retrieved ${results.length} items from Local DB');
     return results
         .map(
           (row) => ProductModel(

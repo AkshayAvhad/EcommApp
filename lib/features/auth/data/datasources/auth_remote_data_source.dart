@@ -40,7 +40,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final response = await dio.get('/auth/me');
 
       if (response.statusCode == 200) {
-        return UserModel.fromJson(response.data);
+        return UserModel.fromJson(response.data, fallbackToken: '');
       } else {
         throw ServerFailure();
       }

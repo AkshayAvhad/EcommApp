@@ -1,6 +1,7 @@
 import 'package:ecomm/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:ecomm/features/auth/presentation/bloc/auth_event.dart';
 import 'package:ecomm/features/auth/presentation/bloc/auth_state.dart';
+import 'package:ecomm/features/products/presentation/pages/product_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -8,13 +9,18 @@ class LoginPage extends StatelessWidget {
   final TextEditingController _userController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
 
+  LoginPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is Authenticated) {
-            Navigator.pushReplacementNamed(context, '/home');
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => ProductListPage()),
+            );
           } else if (state is AuthError) {
             ScaffoldMessenger.of(
               context,

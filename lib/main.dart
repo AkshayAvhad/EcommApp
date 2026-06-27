@@ -3,6 +3,7 @@ import 'package:ecomm/features/auth/presentation/bloc/auth_event.dart';
 import 'package:ecomm/features/auth/presentation/bloc/auth_state.dart';
 import 'package:ecomm/features/auth/presentation/pages/login_page.dart';
 import 'package:ecomm/features/cart/presentation/bloc/cart_bloc.dart';
+import 'package:ecomm/features/products/presentation/pages/canvas_sandbox_page.dart';
 import 'package:ecomm/features/products/presentation/pages/product_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:ecomm/core/di/injection_container.dart' as di;
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
+        // home: const CanvasSandboxPage(),
         home: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
             if (state is Authenticated) return const ProductListPage();

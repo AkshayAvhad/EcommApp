@@ -10,6 +10,7 @@ import 'package:ecomm/features/auth/domain/usecases/get_user_profile.dart';
 import 'package:ecomm/features/auth/domain/usecases/login_user.dart';
 import 'package:ecomm/features/auth/domain/usecases/logout_user.dart';
 import 'package:ecomm/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:ecomm/features/auth/presentation/bloc/profile/profile_bloc.dart';
 import 'package:ecomm/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:ecomm/features/products/data/datasources/product_local_data_source.dart';
 import 'package:ecomm/features/products/data/datasources/product_remote_data_source.dart';
@@ -40,7 +41,7 @@ Future<void> init() async {
       loginUser: sl(),
       logoutUser: sl(),
       localDataSource: sl(),
-      getUserProfile: sl(),
+      database: sl(),
     ),
   );
 
@@ -120,4 +121,6 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CartBloc());
 
   sl.registerFactory(() => CategoryBloc(repository: sl()));
+
+  sl.registerFactory(() => ProfileBloc(getUserProfile: sl()));
 }

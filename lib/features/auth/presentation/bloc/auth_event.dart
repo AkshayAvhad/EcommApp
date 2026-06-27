@@ -19,4 +19,4 @@ class LoginRequested extends AuthEvent {
 
 class LoggedOut extends AuthEvent {}
 
-class GetProfileRequested extends AuthEvent {}
+// class GetProfileRequested extends AuthEvent {}

@@ -12,7 +12,10 @@ class UserModel extends User {
     required super.token,
   });
 
-  factory UserModel.fromJson(Map<String, dynamic> json) {
+  factory UserModel.fromJson(
+    Map<String, dynamic> json, {
+    String fallbackToken = '',
+  }) {
     return UserModel(
       id: json['id'],
       username: json['username'],
@@ -21,7 +24,7 @@ class UserModel extends User {
       lastName: json['lastName'],
       gender: json['gender'],
       image: json['image'],
-      token: json['accessToken'] ?? json['token'],
+      token: json['accessToken'] ?? json['token'] ?? fallbackToken,
     );
   }
 

@@ -39,6 +39,16 @@ class AppDatabase extends _$AppDatabase {
   });
 
   Future deleteAllProducts() => delete(products).go();
+
+  Future<void> clearAllData() async {
+    // Run this inside a transaction so if one table clear fails, everything rolls back safely
+    await transaction(() async {
+      // Deleting in reverse topological order protects against foreign key violations
+      for (final table in allTables.toList().reversed) {
+        await delete(table).go();
+      }
+    });
+  }
 }
 
 LazyDatabase _openConnection() {

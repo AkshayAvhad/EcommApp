@@ -37,6 +37,22 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+    flavorDimensions += "default"
+
+    productFlavors {
+        create("dev") {
+            dimension = "default"
+            // Appends .dev so both apps can be installed on the same phone
+            applicationIdSuffix = ".dev"
+            resValue("string", "app_name", "EComm (DEV)")
+        }
+        create("prod") {
+            dimension = "default"
+            // Uses base applicationId: com.ecomm.ecomm
+            resValue("string", "app_name", "EComm")
+        }
+    }
 }
 
 flutter {

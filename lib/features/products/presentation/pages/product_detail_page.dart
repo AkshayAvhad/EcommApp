@@ -12,71 +12,153 @@ class ProductDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(product.title)),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: .start,
-          children: [
-            Hero(
-              tag: product.id,
-              child: Image.network(
-                product.thumbnail,
-                width: double.infinity,
-                height: 300,
-                fit: .cover,
+      // appBar: AppBar(title: Text(product.title)),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 350.0,
+            pinned: true,
+            elevation: 0,
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            primary: true,
+            // This builds the dynamic title that fades in ONLY when collapsed
+            // title: LayoutBuilder(
+            //   builder: (context, constraints) {
+            //     final systemBarHeight =
+            //         kToolbarHeight + MediaQuery.of(context).padding.top;
+            //
+            //     // Look familiar? We are reading the incoming layout constraints in real-time!
+            //     // If the height drops down near the minimum status bar level, show the title.
+            //     final isCollapsed =
+            //         constraints.biggest.height <= (systemBarHeight + 20.0);
+            //
+            //     return AnimatedOpacity(
+            //       duration: const Duration(milliseconds: 200),
+            //       opacity: isCollapsed ? 1.0 : 0.0,
+            //       child: Text(
+            //         product.title,
+            //         style: const TextStyle(
+            //           fontSize: 18,
+            //           fontWeight: .bold,
+            //           color: Colors.black,
+            //         ),
+            //       ),
+            //     );
+            //   },
+            // ),
+
+            // This is the actual canvas area that scales and transforms on scroll
+            flexibleSpace: FlexibleSpaceBar(
+              // centerTitle: true,
+              title: LayoutBuilder(
+                builder: (context, constraints) {
+                  final statusBarHeight = MediaQuery.of(context).padding.top;
+                  final systemBarHeight = kToolbarHeight + statusBarHeight;
+
+                  // Look familiar? We are reading the incoming layout constraints in real-time!
+                  // If the height drops down near the minimum status bar level, show the title.
+                  final isCollapsed =
+                      constraints.biggest.height <= (systemBarHeight + 20.0);
+
+                  return AnimatedOpacity(
+                    duration: const Duration(milliseconds: 100),
+                    opacity: isCollapsed ? 1.0 : 0.0,
+                    child: Text(
+                      product.title,
+                      maxLines: 1,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: .bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  );
+                },
               ),
+              background: Hero(
+                tag: product.id,
+                child: SafeArea(
+                  top: true,
+                  bottom: false,
+                  child: Image.network(product.thumbnail, fit: .contain),
+                ),
+              ),
+              collapseMode: .parallax, // Adds a premium parallax slide effect
             ),
-            Padding(
-              padding: .all(16.0),
+          ),
+
+          // 2. THE CONTENT LAYER: Standard non-sliver widgets must be wrapped in a adapter
+          SliverToBoxAdapter(
+            child: Container(
+              color: Colors.white,
+              padding: const .all(24.0),
               child: Column(
                 crossAxisAlignment: .start,
                 children: [
-                  Text(
-                    product.title,
-                    style: Theme.of(context).textTheme.headlineMedium,
+                  Row(
+                    mainAxisAlignment: .spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          product.title,
+                          style: TextStyle(fontSize: 24, fontWeight: .bold),
+                        ),
+                      ),
+                      Text(
+                        '\$${product.price}',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: .bold,
+                          color: Colors.blueAccent,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 8.0),
                   Text(
-                    '\$${product.price}',
+                    product.category.toUpperCase(),
                     style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.green[700],
-                      fontWeight: .bold,
+                      fontSize: 12,
+                      fontWeight: .w600,
+                      color: Colors.grey[500],
+                      letterSpacing: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const Divider(height: 40, thickness: 1),
                   const Text(
-                    'Description',
-                    style: TextStyle(fontWeight: .bold, fontSize: 18),
+                    'Product Description',
+                    style: TextStyle(fontSize: 18, fontWeight: .bold),
                   ),
-                  const SizedBox(height: 8),
-                  Text(product.description),
-                  const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        padding: .symmetric(vertical: 16),
-                      ),
-                      onPressed: () {
-                        // Dispatch the event to the global CartBloc
-                        context.read<CartBloc>().add(AddProductToCart(product));
+                  const SizedBox(height: 12),
+                  Text(
+                    product.description,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[700],
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 40),
 
-                        // Show a snackbar for feedback
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('${product.title} added to cart'),
-                          ),
-                        );
-                      },
-                      child: const Text('Add to Cart'),
+                  // Adding a massive placeholder block so the page is long enough to let us scroll!
+                  Container(
+                    height: 600,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: .circular(16),
+                    ),
+                    alignment: .center,
+                    child: Text(
+                      'Customer Reviews Placeholder',
+                      style: TextStyle(color: Colors.grey[400]),
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

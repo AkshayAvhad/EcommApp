@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:ecomm/core/di/injection_container.dart' as di;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-void main() async {
+void mainCommon() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await di.init();

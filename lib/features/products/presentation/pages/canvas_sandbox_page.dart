@@ -1,3 +1,7 @@
+import 'dart:isolate';
+
+// import 'package:ecomm/core/services/generated_device_api.g.dart';
+import 'package:ecomm/core/services/platform_device_service.dart';
 import 'package:flutter/material.dart';
 import 'package:ecomm/core/components/custom_circular_progress.dart';
 
@@ -74,8 +78,22 @@ class _CanvasSandboxPageState extends State<CanvasSandboxPage> {
                       mainAxisAlignment: .spaceEvenly,
                       children: [
                         ElevatedButton.icon(
-                          onPressed: () =>
-                              setState(() => _currentProgress = 0.0),
+                          onPressed: () async {
+                            // freezeTheApp();
+                            // print(
+                            //   'BATTERY LEVEL: ${await PlatformDeviceService().getBatteryLevel()}',
+                            // );
+
+                            // final api = NativeDeviceApi();
+                            // final BatteryResponse response = await api.getDetailedBattery();
+
+                            // print("🔋 Battery is at: ${response.percentage}%");
+                            // print("⚡ Is device charging? ${response.isCharging}");
+
+                            setState(() {
+                              _currentProgress = 0.0;
+                            });
+                          },
                           icon: const Icon(Icons.refresh),
                           label: const Text('Reset'),
                         ),
@@ -95,5 +113,32 @@ class _CanvasSandboxPageState extends State<CanvasSandboxPage> {
         ),
       ),
     );
+  }
+
+  void freezeTheApp() async {
+    //CODE WITH ISOLATE
+    print("🚀 Offloading computation to an Isolate...");
+
+    // We wrap the identical heavy loop inside Isolate.run
+    int counter = await Isolate.run(() {
+      int innerCounter = 0;
+      for (int i = 0; i < 500000000; i++) {
+        innerCounter += i;
+      }
+      print("✅ Background Isolate finished! Counter: $innerCounter");
+      return innerCounter;
+    });
+
+    print("🎉 Main UI thread received completion signal! Value: $counter");
+
+    //CODE WITHOUT ISOLATE
+    // print("🚨 Starting massive computation on Main UI Thread...");
+    // int counter = 0;
+    // // Running a heavy synchronous loop 5 billion times
+    // for (int i = 0; i < 500000000; i++) {
+    //   counter += i;
+    // }
+    //
+    // print("✅ Computation finished! Counter value: $counter");
   }
 }

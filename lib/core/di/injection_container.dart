@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:ecomm/core/config/app_config.dart';
 import 'package:ecomm/core/database/app_database.dart';
 import 'package:ecomm/core/network/auth_interceptor.dart';
 import 'package:ecomm/core/network/network_info.dart';
@@ -70,19 +71,21 @@ Future<void> init() async {
   //DIO CONFIGURATION
   sl.registerLazySingleton(() {
     final dio = Dio();
-    dio.options.baseUrl = 'https://dummyjson.com';
+    dio.options.baseUrl = AppConfig.instance.apiBaseUrl;
 
     // This is where the magic happens: Add the security guard!
     dio.interceptors.add(sl<AuthInterceptor>());
 
     // Optional: Add a logger to see requests in the console
-    dio.interceptors.add(
-      LogInterceptor(
-        requestHeader: true,
-        responseBody: true,
-        requestBody: true,
-      ),
-    );
+    if (AppConfig.instance.enableDioLogging) {
+      dio.interceptors.add(
+        LogInterceptor(
+          requestHeader: true,
+          responseBody: true,
+          requestBody: true,
+        ),
+      );
+    }
 
     return dio;
   });

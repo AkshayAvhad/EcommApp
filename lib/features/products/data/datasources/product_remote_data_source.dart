@@ -28,6 +28,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
 
   @override
   Future<List<ProductModel>> getProducts({int limit = 20, int skip = 0}) async {
+
     final response = await dio.get(
       '/products',
       queryParameters: {'limit': limit, 'skip': skip},
